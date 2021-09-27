@@ -3,7 +3,7 @@ MMBeebXL.dll allows the memory mapped version of MMFS to be used with BeebEm whe
 
 It should be placed in the Program Files (x86)\BeebEm\Hardware folder, and selected in the BeebEm menu Hardware>Model B Floppy Controller>Select FDC Board.
 
-By default the location of the image file is Documents\BeebEm\DiscIms\beeb.mmb.
+By default the pathname of the image file is Documents\BeebEm\DiscIms\beeb.mmb.
 
 An optional mmc.cfg file can be created in Documents\Beebem folder:
 
