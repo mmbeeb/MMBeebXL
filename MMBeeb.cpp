@@ -24,7 +24,7 @@ static char MMBeebName[100] = "MMBeebXL Extension board for BBC Model B";
 static char MMBImageName[MAX_PATH];
 static char MMBFileName[MAX_PATH] = MMB_NAME;
 
-static enum MMCprocess {
+enum MMCprocess {
         MMCidle = 1,
         MMCcmd0 = 2,
         MMCcmd1 = 3,
@@ -34,7 +34,7 @@ static enum MMCprocess {
         MMCsetblklen = 7
 };
 
-static enum MMCstatus {
+enum MMCstatus {
         MMCnogo = 0,
         MMCcmd0ok = 1,
         MMCcmd1fail = 2,
