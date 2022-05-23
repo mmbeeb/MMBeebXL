@@ -8,6 +8,7 @@
 
 // Updated June 2019 to allow access to images > 2GB
 // Updated September 2021 to compile in Visual Studio 2019
+// Updated May 2022 to remove address option from config file & default to 0xfe1c
 
 #include <windows.h>
 #include <shlobj.h>
@@ -18,8 +19,8 @@
 
 #define MMB_NAME "\\BeebEm\\DiscIms\\beeb.mmb"
 #define CFG_NAME "\\BeebEm\\MMC.cfg"
+#define HWAddress 0xfe1c
 
-static int DCAddress = 0xfe18;
 static char MMBeebName[100] = "MMBeebXL Extension board for BBC Model B";
 static char MMBImageName[MAX_PATH];
 static char MMBFileName[MAX_PATH] = MMB_NAME;
@@ -44,6 +45,8 @@ enum MMCstatus {
 static unsigned char shiftreg = 0xff;
 
 // Card ID - I'm familiar with these numbers
+// Note: The CRC of the Card ID is used by MMFS to identify
+// the 'card' and to check if it's been swapped with another.
 static unsigned char CardID[] = {
         0xff, 0xfe, 0x01, 0x00, 0x00,
         0x33, 0x32, 0xff, 0xff, 0xff,
@@ -85,10 +88,10 @@ EXPORT void GetBoardProperties(struct DriveControlBlock *FDBoard) {
             DoSetup=FALSE;
         }
 
-        sprintf(MMBeebName, "MMBeebXL: %.50s %04X", MMBFileName, DCAddress);
+        sprintf(MMBeebName, "MMBeebXL: %.50s", MMBFileName);
 
         FDBoard->FDCAddress = 0x0000; // Not used
-        FDBoard->DCAddress = DCAddress; // MMC Board
+        FDBoard->DCAddress = HWAddress; // MMC Board
         FDBoard->BoardName = MMBeebName;
         FDBoard->TR00_ActiveHigh = TRUE;
 }
@@ -193,10 +196,12 @@ void writeMMC(unsigned char value) {
             case MMCcardid: // Read Card ID
                 if (MMCcounter == 8) {
                     shiftreg = 0x00;
-                } else if (MMCcounter > 8) {
+                }
+                else if (MMCcounter > 8) {
                     if (MMCcounter == 28) {
                         MMCprocess = MMCidle;
-                    } else {
+                    }
+                    else {
                         shiftreg = CardID[MMCcounter - 9];
                     }
                 }
@@ -227,7 +232,7 @@ void SetAddressLimit() {
         int x = strlen(MMBImageName);
 
         // Optional mmc.cfg file
-        // containing path to image file, and/or device address
+        // containing path to image file
         strcpy(MMBImageName + x, CFG_NAME);
         pFile = fopen(MMBImageName,"rt");
         if (pFile!=NULL)
@@ -241,11 +246,6 @@ void SetAddressLimit() {
 
                 if (i > 0)
                      strcpy(MMBFileName, buf);
-
-                // Second line is address
-                for (; i < b - 1; i++)
-                    if (buf[i] == '1' && buf[i + 1] == 'C')
-                        DCAddress = 0xfe1c;
             }
         }
 
